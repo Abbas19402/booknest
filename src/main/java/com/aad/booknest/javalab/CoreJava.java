@@ -31,7 +31,7 @@ class EqualsDemo {
         System.out.println(a == b); //false
         System.out.println(a.equals(b)); // without overriding the equals, it will return false else after overriding it returns true
 
-        Set<Student> set = new HashSet();
+        Set<Student> set = new HashSet<>();
         set.add(a); set.add(b);
         System.out.println(set.size()); // 1
     }
@@ -126,6 +126,67 @@ class OopDemo {
     }
 }
 
+class Resource implements AutoCloseable {
+    final String name;
+    Resource(String name) {
+        this.name = name;
+        System.out.println("open "+name);
+    }
+    void use() { throw new IllegalStateException("boom"); }
+    @Override 
+    public void close() {
+        System.out.println("close "+name);
+    }
+}
+
+class InsufficientStockException extends Exception {
+    InsufficientStockException( String m ) { super(m); }
+}
+class BookNotFoundException extends RuntimeException {
+    BookNotFoundException(String m) { super(m); }
+}
+
+class ExceptionDemo {
+    static void borrow(int copies) throws InsufficientStockException {
+        if(copies == 0) throw new InsufficientStockException("no copies left"); 
+    }
+
+    public void run() {
+        try( Resource a = new Resource("A"); Resource b = new Resource("B") ) {
+            // here at this point resource A is created so prints "open A" followed by "open B" as both are created one after another. Remember the sequence a -> b
+            b.use(); // This will throw the error which will then go to catch block. but as the Resource class is AutoClosable, so our overrided close method will show the sequence of clean up. by first printing "close B" then "close A". 
+            // The order of closing ( or cleanup ) is in reverse order of creation. so it first closes B because it was created in last then closes A as it was created before B.
+        } catch (IllegalStateException e) {
+            // then here it prints "boom" as it is the error which is being thrown
+            System.out.println("Caught "+e.getMessage());
+        } finally {
+            // then prints finally
+            System.out.println("finally");
+        }
+
+        try { borrow(0); } catch (InsufficientStockException e) {
+            // and then prints "no copies left"
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+class MemoryDemo {
+    static int depth = 0;
+    static void recurse() { depth++; recurse(); }
+
+    public void run() {
+        // this recursion call keeps calling itself again and again therefore filling the stack. As each call is performed by one thread and every single call is pushed into the stack
+        try { recurse(); }
+        catch (StackOverflowError e) { System.out.println("stack overflow at depth "+depth); }
+
+        // TODO: needs further and detailed understanding of this HEAP OutOfMemeory exception call
+        List<byte[]> hog = new ArrayList<>();
+        try { while(true) hog.add(new byte[1_000_0000]); }
+        catch (OutOfMemoryError e) { System.out.println("heap full after "+hog.size()+" MB"); }
+    }
+}   
+
 
 public class CoreJava {
     public static void main(String args[]) {
@@ -144,6 +205,14 @@ public class CoreJava {
         // Q4. Abstract class vs interface. Four pillars of OOP.
         OopDemo oopDemo = new OopDemo();
         oopDemo.run();
+
+        // Q5. Checked vs unchecked exceptions. What is try-with-resources ? final vs finally vs finalize ?
+        ExceptionDemo exceptionDemo = new ExceptionDemo();
+        exceptionDemo.run();
+
+        //Q6. Stack vs heap. What are StackOverflowError and OutOfMemoryError ? 
+        MemoryDemo memoryDemo = new MemoryDemo();
+        memoryDemo.run();
 
     }
 }
