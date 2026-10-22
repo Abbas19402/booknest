@@ -91,14 +91,14 @@ class SortDemo {
 
         // this is the external comparator
         books.sort(Comparator
-            .comparingDouble((Book b) -> b.price)
+            .comparingDouble((Book b) -> b.price) // ascending order
             .thenComparing(b -> b.title)
         );
         System.out.println(books);
 
         books.sort(Comparator
             .comparingDouble((Book b) -> b.price)
-            .reversed()
+            .reversed() // descending order
         );
         System.out.println(books);
     }
