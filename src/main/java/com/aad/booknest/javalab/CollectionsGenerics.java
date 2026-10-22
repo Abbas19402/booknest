@@ -32,8 +32,8 @@ class HashMapDemo {
     static long time(java.util.function.IntFunction<Object> keyMaker) {
         Map<Object, Integer> m = new HashMap<>();
         long start = System.nanoTime();
-        for(int i = 0; i<20_000; i++) { m.put(keyMaker.apply(i),i); }
-        for(int i = 0; i<200_000; i++) { m.get(keyMaker.apply(i)); }
+        for(int i = 0; i<2_000; i++) { m.put(keyMaker.apply(i),i); }
+        for(int i = 0; i<2_000; i++) { m.get(keyMaker.apply(i)); }
         return (System.nanoTime()-start) / 1_000_000;
     }
 
@@ -42,10 +42,80 @@ class HashMapDemo {
         System.out.println("bad: "+time(BadKey::new)+" ms");
     }
 }
+
+class CollectionsDemo {
+    public void run() {
+        Set<String> hash = new HashSet<String>(List.of("apple", "pear", "fig"));
+        Set<String> tree = new TreeSet<String>(List.of("apple", "pear", "fig"));
+        System.out.println(hash);
+        System.out.println(tree);
+
+        Map<String, Integer> map = new HashMap<>();
+        map.put(null, 1);
+        System.out.println(map);
+    }
+}
+
+class Book implements Comparable<Book> {
+    String title;
+    double price;
+
+    Book(String title, double price) {
+        this.title = title;
+        this.price = price;
+    }
+
+    @Override 
+    public int compareTo(Book o) {
+        return this.title.compareTo(o.title);
+    }
+
+    @Override 
+    public String toString() {
+        return title + " ( " + price + " ) ";
+    }
+}
+
+class SortDemo {
+    public void run() {
+        List<Book> books = new ArrayList<Book>(
+            List.of(
+                new Book("Zen", 300),
+                new Book("Alchemist", 450)
+            )
+        );
+
+        // this uses compareTo which we have override in book class
+        Collections.sort(books);
+        System.out.println(books);
+
+        // this is the external comparator
+        books.sort(Comparator
+            .comparingDouble((Book b) -> b.price)
+            .thenComparing(b -> b.title)
+        );
+        System.out.println(books);
+
+        books.sort(Comparator
+            .comparingDouble((Book b) -> b.price)
+            .reversed()
+        );
+        System.out.println(books);
+    }
+}
+
 public class CollectionsGenerics {
     public static void main(String args[]) {
         // Q7. How does HashMap work internally? (The most asked question.)
         HashMapDemo hashMapDemo = new HashMapDemo();
         hashMapDemo.run();
+
+        // Q8. ArrayList vs LinkedList ; HashMap vs ConcurrentHashMap vs Hashtable ; HashSet vs TreeSet
+        CollectionsDemo collectionsDemo = new CollectionsDemo();
+        collectionsDemo.run();
+
+        // Q9. Comparable vs Comparator
+        SortDemo sortDemo = new SortDemo();
+        sortDemo.run();
     }
 }
