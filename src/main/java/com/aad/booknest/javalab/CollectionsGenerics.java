@@ -32,8 +32,8 @@ class HashMapDemo {
     static long time(java.util.function.IntFunction<Object> keyMaker) {
         Map<Object, Integer> m = new HashMap<>();
         long start = System.nanoTime();
-        for(int i = 0; i<2_000; i++) { m.put(keyMaker.apply(i),i); }
-        for(int i = 0; i<2_000; i++) { m.get(keyMaker.apply(i)); }
+        for(int i = 0; i<2_000; i++) { m.put(keyMaker.apply(i),i); } // storing the value at key
+        for(int i = 0; i<2_000; i++) { m.get(keyMaker.apply(i)); } // retrieving the value by providing the key
         return (System.nanoTime()-start) / 1_000_000;
     }
 
