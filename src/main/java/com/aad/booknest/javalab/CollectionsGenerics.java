@@ -104,6 +104,24 @@ class SortDemo {
     }
 }
 
+class FailFastDemo {
+    public void run() {
+        List<Integer> nums = new ArrayList<Integer>(List.of(1,2,3,4,5));
+
+        // Wrong: throws ConcurrentModificationException
+        // for (Integer n : nums) if ( n % 2 == 0 ) { nums.remove(n); }
+
+        // Right: removeIf
+        nums.removeIf(n -> n % 2 == 0);
+        System.out.println(nums);
+
+        // Right: explicit iterator
+        Iterator<Integer> it = nums.iterator();
+        while(it.hasNext()) if(it.next() == 3) it.remove();
+        System.out.println(nums);
+    }
+}
+
 public class CollectionsGenerics {
     public static void main(String args[]) {
         // Q7. How does HashMap work internally? (The most asked question.)
@@ -117,5 +135,9 @@ public class CollectionsGenerics {
         // Q9. Comparable vs Comparator
         SortDemo sortDemo = new SortDemo();
         sortDemo.run();
+
+        // Q10. Fail-fast vs fail-safe iterators; ConcurrentModificationException
+        FailFastDemo failFastDemo = new FailFastDemo();
+        failFastDemo.run();
     }
 }
